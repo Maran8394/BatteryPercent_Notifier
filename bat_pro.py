@@ -8,7 +8,7 @@ import sys
 def run_code(percentage, power_status):
     next_ten_min = 0
     print(next_ten_min)
-    while not power_status:
+    while power_status:
         current_minute = time.localtime().tm_min
 
         if current_minute == next_ten_min:
@@ -18,9 +18,9 @@ def run_code(percentage, power_status):
                 duration=5,
             ).send()
         else:
-            time.sleep(600) # for 10min sleep
+            time.sleep(120) # for 10min sleep
         print("current_minute", current_minute)    
-        next_ten_min = current_minute + 10
+        next_ten_min = current_minute + 2
         print("next_ten_min",next_ten_min)
 
 
