@@ -1,55 +1,36 @@
-from psutil import sensors_battery # for Battery details
-import time
-from pynotifier import Notification # for notification
-import sys
+from psutil import sensors_battery
+from sys import exit, argv
+from time import sleep
+from pynotifier import Notification
+from time import localtime as l
+
+def notification(string):
+    Notification(
+        title="Battery Percentage Notifier",
+        description=string,
+        duration=5,
+        ).send()
 
 
-
-def run_code(percentage, power_status):
+def starter():
     try:
-        next_ten_min = 0
-        print("SCRIPT STARTED")
-        
-        # print(next_ten_min)
-        while power_status:
-            current_minute = time.localtime().tm_min
-
-            if current_minute == next_ten_min:
-                Notification(
-                    title="Battery Notification",
-                    description="{}% and {}min".format(percentage, current_minute),
-                    duration=5,
-                ).send()    
-
-            else:
-                
-                print("current_minute", current_minute)    
-                next_ten_min = current_minute + 1
-                print("next_ten_min",next_ten_min)
-                time.sleep(59)
-
+        power_status = sensors_battery().power_plugged
+        while not power_status:
+            b_percent = sensors_battery().percent
+            notification(string="{}% left".format(b_percent))
+            min_now = l().tm_min
+            sec_now = l().tm_sec
+            print("{percent}% Left {mint}min {sec}sec".format(percent=b_percent, mint=min_now, sec=sec_now))
+            sleep(600) 
+            
         else:
-            Notification(
-                    title="Battery on Charging",
-                    description="This script is developed for only on off-charging ",
-                    duration=5,
-                ).send()
-            print("ENDED")
+            print("System on Charging....")
+            notification(string="System on Charging")
+            exit()
 
+    except KeyboardInterrupt:
+        print("KeyBoardInterrupt Error Encounterd")
 
-    except KeyboardInterrupt as e:
-        print("You're stop the script.....")
-
-    except:
-        print("Some malfunction occured.....")
-
-
-
-percentage = sensors_battery().percent # to get percentage of the battery
-power_status = sensors_battery().power_plugged  # to get the power status which is plugged or unplugged
-
-start_arg = sys.argv[1]
-if start_arg == 'start':
-    run_code(percentage, power_status)
-else:
-    print("Enter valid argument")
+if __name__ == '__main__':
+    if argv[1] == 'start':
+        starter()
